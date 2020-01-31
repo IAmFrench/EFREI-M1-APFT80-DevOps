@@ -1,13 +1,10 @@
 ```bash
 
 C:\WORK\cours-devOps\terraform
-λ terraform plan
-Refreshing Terraform state in-memory prior to plan...
-The refreshed state will be used to calculate this plan, but will not be
-persisted to local or remote state storage.
-
-
-------------------------------------------------------------------------
+λ terraform apply
+aws_vpc.vpc_tp: Refreshing state... [id=vpc-0e06bb50390ccd3be]
+aws_internet_gateway.gw: Refreshing state... [id=igw-0fb8bb2841e0e2780]
+aws_route_table.r: Refreshing state... [id=rtb-051236580e691cbef]
 
 An execution plan has been generated and is shown below.
 Resource actions are indicated with the following symbols:
@@ -22,7 +19,7 @@ Terraform will perform the following actions:
       + tags     = {
           + "Name" = "TP_CICD_IGW"
         }
-      + vpc_id   = "aws_vpc.vpc_tp.id"
+      + vpc_id   = (known after apply)
     }
 
   # aws_route_table.r will be created
@@ -34,7 +31,7 @@ Terraform will perform the following actions:
           + {
               + cidr_block                = "0.0.0.0/0"
               + egress_only_gateway_id    = ""
-              + gateway_id                = "aws_internet_gateway.gw.id"
+              + gateway_id                = (known after apply)
               + instance_id               = ""
               + ipv6_cidr_block           = ""
               + nat_gateway_id            = ""
@@ -46,7 +43,7 @@ Terraform will perform the following actions:
       + tags             = {
           + "Name" = "TP_CICD_Default"
         }
-      + vpc_id           = "aws_vpc.vpc_tp.id"
+      + vpc_id           = (known after apply)
     }
 
   # aws_subnet.sub_priv will be created
@@ -64,7 +61,7 @@ Terraform will perform the following actions:
       + tags                            = {
           + "Name" = "TP_CICD_Private"
         }
-      + vpc_id                          = "aws_vpc.vpc_tp.id"
+      + vpc_id                          = (known after apply)
     }
 
   # aws_subnet.sub_pub will be created
@@ -82,7 +79,7 @@ Terraform will perform the following actions:
       + tags                            = {
           + "Name" = "TP_CICD_Public"
         }
-      + vpc_id                          = "aws_vpc.vpc_tp.id"
+      + vpc_id                          = (known after apply)
     }
 
   # aws_vpc.vpc_tp will be created
@@ -111,11 +108,23 @@ Terraform will perform the following actions:
 
 Plan: 5 to add, 0 to change, 0 to destroy.
 
-------------------------------------------------------------------------
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
 
-Note: You didn't specify an "-out" parameter to save this plan, so Terraform
-can't guarantee that exactly these actions will be performed if
-"terraform apply" is subsequently run.
+  Enter a value: yes
 
+aws_vpc.vpc_tp: Creating...
+aws_vpc.vpc_tp: Creation complete after 2s [id=vpc-08ac0c4357ab346c1]
+aws_internet_gateway.gw: Creating...
+aws_subnet.sub_priv: Creating...
+aws_subnet.sub_pub: Creating...
+aws_subnet.sub_pub: Creation complete after 2s [id=subnet-041a3cb37bb8635ab]
+aws_internet_gateway.gw: Creation complete after 2s [id=igw-0fd736904958ab40a]
+aws_route_table.r: Creating...
+aws_subnet.sub_priv: Creation complete after 2s [id=subnet-0cc9c3658b6bc4e6a]
+aws_route_table.r: Creation complete after 1s [id=rtb-0f29c76421f04d412]
+
+Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
 
 ```
