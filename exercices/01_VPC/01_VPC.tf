@@ -178,3 +178,12 @@ resource "aws_key_pair" "rufol" {
   key_name   = "rufol"
   public_key = file("01_rufol.pub")
 }
+
+
+output "ngwt-instance" {
+  value = aws_instance.Nat_Jump.public_dns
+}
+
+output "test-instance" {
+  value = aws_instance.Test_Instance.private_dns
+}
