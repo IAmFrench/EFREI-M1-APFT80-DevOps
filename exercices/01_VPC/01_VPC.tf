@@ -125,7 +125,7 @@ resource "aws_security_group" "Priv" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow all outgoing traffic to the Public subnet
+    cidr_blocks = ["0.0.0.0/0"] # Allow all outgoing traffic
   }
 
   tags = {
@@ -164,7 +164,7 @@ resource "aws_instance" "Test_Instance" {
   subnet_id = aws_subnet.sub_priv.id # The private subnet Id
 
   key_name = aws_key_pair.rufol.key_name # private key to remotely connect with ssh to the instance
-  source_dest_check = true # (default true)
+  source_dest_check = false # (default true)
 
   tags = {
     Name = "Test_Instance"
