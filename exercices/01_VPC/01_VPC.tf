@@ -90,7 +90,11 @@ resource "aws_security_group" "Nat_Jump" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["192.102.224.0/24", "46.193.4.20/32"] # EFREI & home Public IPs see https://bgp.he.net/net/192.102.224.0/24
+    cidr_blocks = [
+      "192.102.224.0/24", # EFREI & home Public IPs see https://bgp.he.net/net/192.102.224.0/24
+      "46.193.4.20/32", # Home network
+      aws_subnet.sub_priv.cidr_block # The Private subnet
+    ]
   }
 
   egress {
@@ -121,7 +125,7 @@ resource "aws_security_group" "Priv" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow all incoming traffic from the Public subnet
+    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow all outgoing traffic to the Public subnet
   }
 
   tags = {
@@ -157,8 +161,7 @@ resource "aws_instance" "Test_Instance" {
 
   associate_public_ip_address = false # Private instance  don't need a public IP Address
 
-  subnet_id = aws_subnet.sub_priv.id # The private subnet Id 
-  # user_data = file("01_EC2_user-data_Test-Instance.sh") # This file contains the start-up script
+  subnet_id = aws_subnet.sub_priv.id # The private subnet Id
 
   key_name = aws_key_pair.rufol.key_name # private key to remotely connect with ssh to the instance
   source_dest_check = true # (default true)
