@@ -41,7 +41,7 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-
+# The Custom Route table is attached to the Public subnet
 resource "aws_route_table" "Custom_Route_table" {
   vpc_id = aws_vpc.vpc_tp.id
   
@@ -56,7 +56,14 @@ resource "aws_route_table" "Custom_Route_table" {
     Name = "Custom_Route_table"
   }
 }
+# Attach the Custom route table to the Public subnet
+resource "aws_route_table_association" "pub" {
+  subnet_id      = aws_subnet.sub_pub.id
+  route_table_id = aws_route_table.Custom_Route_table.id
+}
 
+
+# The main Route table is attached to the Private subnet
 resource "aws_route_table" "Main_Route_Table" {
   vpc_id = aws_vpc.vpc_tp.id
   route {
@@ -67,12 +74,7 @@ resource "aws_route_table" "Main_Route_Table" {
     Name = "Main_Route_Table"
   }
 }
-
-
-resource "aws_route_table_association" "pub" {
-  subnet_id      = aws_subnet.sub_pub.id
-  route_table_id = aws_route_table.Custom_Route_table.id
-}
+# Attach the Main route Table to the Private subnet
 resource "aws_route_table_association" "priv" {
   subnet_id      = aws_subnet.sub_priv.id
   route_table_id = aws_route_table.Main_Route_Table.id
@@ -81,21 +83,21 @@ resource "aws_route_table_association" "priv" {
 
 resource "aws_security_group" "Nat_Jump" {
   name        = "Nat_Jump"
-  description = "Allow All inbound traffic from EFREI network"
+  description = "Allow All inbound traffic from EFREI & Home network"
   vpc_id      = aws_vpc.vpc_tp.id
 
   ingress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["192.102.224.0/24"] # EFREI Public IPs see https://bgp.he.net/net/192.102.224.0/24
+    cidr_blocks = ["192.102.224.0/24", "46.193.4.20/32"] # EFREI & home Public IPs see https://bgp.he.net/net/192.102.224.0/24
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["192.102.224.0/24"] # EFREI Public IPs see https://bgp.he.net/net/192.102.224.0/24
+    cidr_blocks = ["0.0.0.0/0"] # Allow all egress traffic
   }
 
   tags = {
@@ -112,33 +114,34 @@ resource "aws_security_group" "Priv" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow incoming traffic from the Public subnet
+    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow all incoming traffic from the Public subnet
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow incoming traffic from the Public subnet
+    cidr_blocks = [aws_subnet.sub_pub.cidr_block] # Allow all incoming traffic from the Public subnet
   }
 
   tags = {
-    Name = "allow_all"
+    Name = "allow_all from public subnet"
   }
 }
 
-
+# This is our BASTION Instance in the Public subnet, we will use this instance to establish an ssh session to
+# the test instance in the private subnet
 resource "aws_instance" "Nat_Jump" {
   ami = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
 
-  associate_public_ip_address = true
+  associate_public_ip_address = true # We ask for a public IP
 
   subnet_id = aws_subnet.sub_pub.id # The public subnet Id 
   user_data = file("01_EC2_user-data_Nat-Jump.sh")
 
   key_name = aws_key_pair.rufol.key_name
-  source_dest_check = false
+  source_dest_check = false # Default true, but because we use this instance as a NAT we have to disable it
 
   tags = {
     Name = "Nat_JumpHost"
@@ -152,13 +155,13 @@ resource "aws_instance" "Test_Instance" {
   ami = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
 
-  associate_public_ip_address = true
+  associate_public_ip_address = false # Private instance  don't need a public IP Address
 
   subnet_id = aws_subnet.sub_priv.id # The private subnet Id 
-  user_data = file("01_EC2_user-data_Test-Instance.sh")
+  # user_data = file("01_EC2_user-data_Test-Instance.sh") # This file contains the start-up script
 
-  key_name = aws_key_pair.rufol.key_name
-  source_dest_check = false
+  key_name = aws_key_pair.rufol.key_name # private key to remotely connect with ssh to the instance
+  source_dest_check = true # (default true)
 
   tags = {
     Name = "Test_Instance"
