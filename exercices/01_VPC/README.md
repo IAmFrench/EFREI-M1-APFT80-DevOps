@@ -24,9 +24,9 @@ terraform destroy
 > We use this command to quickly check if the *tf files are well writen and don't produces errors.
 > Also we use this command to see changes to our environment.
 
-![Terraform plan 1](https://drive.google.com/a/pares-corp.com/uc?id=1sENyaHWrZSetpP_3ktNN1UcDqiDOX5N_)
+![Terraform plan 1](https://imgur.com/3Cz6IeR.png)
 
-![Terraform plan 2](https://drive.google.com/a/pares-corp.com/uc?id=1z-mFrPaSVdrYkwPNPFMDoQfvZeVCtqY5)
+![Terraform plan 2](https://imgur.com/psPHrux.png)
 
 
 ```bash
@@ -42,9 +42,9 @@ terraform plan
 terraform apply
 ```
 
-![Terraform apply 1](https://drive.google.com/a/pares-corp.com/uc?id=1PMn8UAY2n6ccO1LZXGX1qhxD2dm321vN)
+![Terraform apply 1](https://imgur.com/zMJxXgz.png)
 
-![Terraform apply 2](https://drive.google.com/a/pares-corp.com/uc?id=1oVh-XIHP_0rYahcOFgNxso0ujljjgWEV)
+![Terraform apply 2](https://imgur.com/QEsIkBV.png)
 
 
 ## SSH Jump to the test instance
@@ -64,7 +64,7 @@ ssh -J ubuntu@{public-dns-name-of-NAT-instance} ubuntu@{private-dns-name-of-test
 
 ```
 
-![Jump SSH to Test instance from NAT public instance](https://drive.google.com/a/pares-corp.com/uc?id=1RVyk0k05Hcg2Yo4nAs9x1GtJmAOwfhtE)
+![Jump SSH to Test instance from NAT public instance](https://imgur.com/etYI4tl.png)
 
 
 
@@ -76,7 +76,7 @@ ssh -J ubuntu@{public-dns-name-of-NAT-instance} ubuntu@{private-dns-name-of-test
 ping 8.8.8.8
 ```
 
-![Ping to 8.8.8.8 from Test instance](https://drive.google.com/a/pares-corp.com/uc?id=1-rIcgLna12qUHwnEYlNWLN7AcL4g-htn)
+![Ping to 8.8.8.8 from Test instance](https://imgur.com/4nIL1h2.png)
 
 
 ## Terraform destroy
@@ -88,6 +88,6 @@ ping 8.8.8.8
 terraform destroy
 ```
 
-![Terraform destroy 1](https://drive.google.com/a/pares-corp.com/uc?id=1Ia4HTYk2C93i3VmE0oJio3HJJdMP0K_9)
+![Terraform destroy 1](https://imgur.com/LcyrMEj.png)
 
-![Terraform destroy 1](https://drive.google.com/a/pares-corp.com/uc?id=1PEfj3f7VKoR-hZg5Jcs_rWMkwZoRNrlD)
+![Terraform destroy 1](https://imgur.com/1UzfrLC.png)
