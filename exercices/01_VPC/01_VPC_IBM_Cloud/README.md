@@ -4,23 +4,10 @@
 ## Cons about the IBM Cloud Terraform Plugin
 - You can't use the ibmcloud cli credentials
 
-## Using the BNPP Formation Account
-- You can't create ressource Groups
-- You can't create a ssh key
-
-## Using a "free" IBM Cloud Account
-- You can't create an other ressource Group
-- You can create a ssh key
-
-## Cons using the IBM Cloud as a provider
-- even if using data section to select the default resource group, you can't create
-a VPC
-
 ## Workaround for resource group
 https://ibm-cloud.github.io/tf-ibm-docs/v1.2.0/d/resource_group.html
 
-You can select the default resource group and the use it using data variables
-
+DO NOT SELECT the default resource group
 
 ## Documentation about IBM Cloud terraform ressources and data
 https://ibm-cloud.github.io/tf-ibm-docs/v1.2.0
