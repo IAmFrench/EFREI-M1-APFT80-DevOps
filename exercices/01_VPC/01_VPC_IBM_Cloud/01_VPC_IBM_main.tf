@@ -36,3 +36,12 @@ resource "ibm_is_subnet" "private" {
   network_acl = ibm_is_vpc.PF_ITOPS_vpc.default_network_acl 
 }
 
+resource "ibm_is_ssh_key" "ssh_Key" {
+  name       = "pf-itops-apares"
+  public_key = file(var.pubKeyPath)
+  resource_group = data.ibm_resource_group.Training.id
+}
+
+variable "pubKeyPath" {
+  type = string
+}
