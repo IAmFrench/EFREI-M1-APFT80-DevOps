@@ -18,9 +18,21 @@ variable "zone" {
   type = string
 }
 
-resource "ibm_is_subnet" "sub_a" {
-  name            = "pf-itops-sub-a"
+resource "ibm_is_subnet" "public" {
+  name            = "pf-itops-public"
   vpc             = ibm_is_vpc.PF_ITOPS_vpc.id
   zone            = var.zone
-  ipv4_cidr_block = "192.168.0.0/24"
+  total_ipv4_address_count = 8
+  resource_group = data.ibm_resource_group.Training.id
+  network_acl = ibm_is_vpc.PF_ITOPS_vpc.default_network_acl 
 }
+
+resource "ibm_is_subnet" "private" {
+  name            = "pf-itops-private"
+  vpc             = ibm_is_vpc.PF_ITOPS_vpc.id
+  zone            = var.zone
+  total_ipv4_address_count = 8
+  resource_group = data.ibm_resource_group.Training.id
+  network_acl = ibm_is_vpc.PF_ITOPS_vpc.default_network_acl 
+}
+
