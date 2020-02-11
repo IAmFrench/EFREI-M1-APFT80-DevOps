@@ -1,9 +1,3 @@
-provider "aws" {
-  version = "~> 2.0"
-  region  = "eu-west-1"
-}
-
-
 resource "aws_vpc" "vpc_tp" {
   cidr_block = "172.16.0.0/16"
   tags = {
@@ -14,8 +8,8 @@ resource "aws_vpc" "vpc_tp" {
 
 
 resource "aws_subnet" "sub_pub" {
-  vpc_id     = aws_vpc.vpc_tp.id
-  cidr_block = "172.16.1.0/24"
+  vpc_id            = aws_vpc.vpc_tp.id
+  cidr_block        = "172.16.1.0/24"
   availability_zone = "eu-west-1a"
   tags = {
     Name = "TP_CICD_Public"
@@ -24,8 +18,8 @@ resource "aws_subnet" "sub_pub" {
 
 
 resource "aws_subnet" "sub_priv" {
-  vpc_id     = aws_vpc.vpc_tp.id
-  cidr_block = "172.16.2.0/24"
+  vpc_id            = aws_vpc.vpc_tp.id
+  cidr_block        = "172.16.2.0/24"
   availability_zone = "eu-west-1a"
   tags = {
     Name = "TP_CICD_Private"
@@ -44,7 +38,7 @@ resource "aws_internet_gateway" "gw" {
 # The Custom Route table is attached to the Public subnet
 resource "aws_route_table" "Custom_Route_table" {
   vpc_id = aws_vpc.vpc_tp.id
-  
+
   # Note that the default route, mapping the VPC's CIDR block to "local", 
   # is created implicitly and cannot be specified.
   route {
@@ -67,7 +61,7 @@ resource "aws_route_table_association" "pub" {
 resource "aws_route_table" "Main_Route_Table" {
   vpc_id = aws_vpc.vpc_tp.id
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block  = "0.0.0.0/0"
     instance_id = aws_instance.Nat_Jump.id
   }
   tags = {
@@ -87,12 +81,12 @@ resource "aws_security_group" "Nat_Jump" {
   vpc_id      = aws_vpc.vpc_tp.id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = [
-      "192.102.224.0/24", # EFREI & home Public IPs see https://bgp.he.net/net/192.102.224.0/24
-      "46.193.4.20/32", # Home network
+      "192.102.224.0/24",            # EFREI & home Public IPs see https://bgp.he.net/net/192.102.224.0/24
+      "46.193.4.20/32",              # Home network
       aws_subnet.sub_priv.cidr_block # The Private subnet
     ]
   }
@@ -136,15 +130,15 @@ resource "aws_security_group" "Priv" {
 # This is our BASTION Instance in the Public subnet, we will use this instance to establish an ssh session to
 # the test instance in the private subnet
 resource "aws_instance" "Nat_Jump" {
-  ami = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
+  ami           = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
 
   associate_public_ip_address = true # We ask for a public IP
 
   subnet_id = aws_subnet.sub_pub.id # The public subnet Id 
-  user_data = file("01_EC2_user-data_Nat-Jump.sh")
+  user_data = file(var.ec2_startup_script)
 
-  key_name = aws_key_pair.rufol.key_name
+  key_name          = aws_key_pair.rufol.key_name
   source_dest_check = false # Default true, but because we use this instance as a NAT we have to disable it
 
   tags = {
@@ -154,17 +148,21 @@ resource "aws_instance" "Nat_Jump" {
   vpc_security_group_ids = [aws_security_group.Nat_Jump.id]
 }
 
+variable "ec2_startup_script" {
+  type = string
+}
+
 
 resource "aws_instance" "Test_Instance" {
-  ami = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
+  ami           = "ami-035966e8adab4aaad" # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type
   instance_type = "t2.micro"
 
   associate_public_ip_address = false # Private instance  don't need a public IP Address
 
   subnet_id = aws_subnet.sub_priv.id # The private subnet Id
 
-  key_name = aws_key_pair.rufol.key_name # private key to remotely connect with ssh to the instance
-  source_dest_check = false # (default true)
+  key_name          = aws_key_pair.rufol.key_name # private key to remotely connect with ssh to the instance
+  source_dest_check = false                       # (default true)
 
   tags = {
     Name = "Test_Instance"
@@ -176,7 +174,11 @@ resource "aws_instance" "Test_Instance" {
 
 resource "aws_key_pair" "rufol" {
   key_name   = "rufol"
-  public_key = file("01_rufol.pub")
+  public_key = file(var.pubKeyPath)
+}
+
+variable "pubKeyPath" {
+  type = string
 }
 
 
