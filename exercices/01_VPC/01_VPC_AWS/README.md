@@ -1,4 +1,4 @@
-# Ex1 - Deploying VPC and 2 instances - A 2-tier routing table
+# Ex1 - Deploying VPC and 2 instances - A 2-tier routing table on AWS
 
 TLDR:
 
