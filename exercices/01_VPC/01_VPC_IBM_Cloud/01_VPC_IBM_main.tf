@@ -47,11 +47,11 @@ variable "pubKeyPath" {
 }
 
 
-
+# The security group for instances in the public subnet
 resource "ibm_is_security_group" "public" {
   name = "pf-itops-public-sg"
   vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
-  resource_group = data.ibm_resource_group.Training.id
+  resource_group = data.ibm_resource_group.Training.id # Very very important
 }
 
 # Allow only traffic from Unicity Public wifi
@@ -59,6 +59,13 @@ resource "ibm_is_security_group_rule" "public_sg_rule_all_in_from_unicity" {
   group     = ibm_is_security_group.public.id
   direction = "inbound"
   remote = "217.163.58.252/32"
+}
+
+# Allow only traffic from home
+resource "ibm_is_security_group_rule" "public_sg_rule_all_in_from_home" {
+  group     = ibm_is_security_group.public.id
+  direction = "inbound"
+  remote = "46.193.4.20/32"
 }
 
 # Allow all exiting traffic
@@ -86,7 +93,6 @@ resource "ibm_is_instance" "nat_gwt_instance" {
   resource_group = data.ibm_resource_group.Training.id
 }
 
-
 variable "natGwtStartupScript" {
   type = string
 }
@@ -99,7 +105,7 @@ resource "ibm_is_floating_ip" "nat_gwt_instance_floating_ip" {
 
 
 
-
+# security group for instances in the private subnet
 resource "ibm_is_security_group" "private" {
   name = "pf-itops-private-sg"
   vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
@@ -110,7 +116,8 @@ resource "ibm_is_security_group" "private" {
 resource "ibm_is_security_group_rule" "private_sg_rule_all_in_from_public_subnet" {
   group     = ibm_is_security_group.private.id
   direction = "inbound"
-  remote = ibm_is_subnet.private.ipv4_cidr_block
+  remote = ibm_is_subnet.public.ipv4_cidr_block # IP range of the public subnet
+  # remote = "0.0.0.0/0" # test, allow all incoming traffic
 }
 
 # Allow all exiting traffic
@@ -128,13 +135,18 @@ resource "ibm_is_instance" "private_instance" {
   primary_network_interface {
     name   = "eth0"
     subnet = ibm_is_subnet.private.id
-    
     security_groups = [ibm_is_security_group.private.id]
   }
   vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
   zone           = "us-south-1"
   keys           = [ibm_is_ssh_key.ssh_Key.id]
-  user_data      = file(var.natGwtStartupScript)
+  resource_group = data.ibm_resource_group.Training.id # super important
+}
+
+
+resource "ibm_is_floating_ip" "private_instance_floating_ip" {
+  name   = "pf-itops-private-instance-flt-ip"
+  target = ibm_is_instance.private_instance.primary_network_interface[0].id
   resource_group = data.ibm_resource_group.Training.id
 }
 
@@ -144,6 +156,11 @@ output "ngwt-instance" {
 output "private-instance" {
   value = ibm_is_instance.private_instance.primary_network_interface[0].primary_ipv4_address
 }
+output "private-instance-public-ip" {
+  value = ibm_is_floating_ip.private_instance_floating_ip.address
+}
+
+
 
 output "public_sub-ipv4_cidr_block" {
   value = ibm_is_subnet.public.ipv4_cidr_block
