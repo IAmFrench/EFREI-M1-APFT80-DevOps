@@ -54,6 +54,7 @@ resource "ibm_is_instance" "nat_gwt_instance" {
   primary_network_interface {
     name   = "eth0"
     subnet = ibm_is_subnet.public.id
+    security_groups = [ibm_is_security_group.public.id]
   }
   vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
   zone           = "us-south-1"
@@ -61,6 +62,46 @@ resource "ibm_is_instance" "nat_gwt_instance" {
   user_data      = file(var.natGwtStartupScript)
   resource_group = data.ibm_resource_group.Training.id
 }
+
+resource "ibm_is_security_group" "public" {
+  name = "pf-itops-public-sg"
+  vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
+  resource_group = data.ibm_resource_group.Training.id
+}
+
+# Allow only traffic from Unicity Public wifi
+resource "ibm_is_security_group_rule" "public_sg_rule_all_in_from_unicity" {
+  group     = ibm_is_security_group.public.id
+  direction = "inbound"
+  remote = "217.163.58.252/32"
+}
+
+# Allow all exiting traffic
+resource "ibm_is_security_group_rule" "public_sg_rule_all_out" {
+  group     = ibm_is_security_group.public.id
+  direction = "outbound"
+  remote = "0.0.0.0/0"
+}
+
+/*
+resource "ibm_is_security_group_network_interface_attachment" "public_nat_gwt" {
+  security_group    = ibm_is_security_group.public.id
+  network_interface = ibm_is_instance.nat_gwt_instance.primary_network_interface[0].id
+}
+
+*/
+
+
+
+/*
+resource "ibm_is_network_acl" "private-acl" {
+  name = "testACL"
+  vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
+  # resource_group = data.ibm_resource_group.Training.id
+  
+}
+*/
+
 
 variable "natGwtStartupScript" {
   type = string
@@ -94,3 +135,12 @@ output "ngwt-instance" {
 output "private-instance" {
   value = ibm_is_instance.private_instance.primary_network_interface[0].primary_ipv4_address
 }
+
+output "public_sub-ipv4_cidr_block" {
+  value = ibm_is_subnet.public.ipv4_cidr_block
+}
+
+output "private_sub-ipv4_cidr_block" {
+  value = ibm_is_subnet.private.ipv4_cidr_block
+}
+

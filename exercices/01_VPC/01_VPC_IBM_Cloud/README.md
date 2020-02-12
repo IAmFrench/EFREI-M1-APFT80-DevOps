@@ -20,7 +20,7 @@ https://ibm-cloud.github.io/tf-ibm-docs/v1.2.0/d/is_vpc.html
 
 ### cons
 - Can't add tags to the IBM ressource (not documented)
-- you can't use a `-` in the vpc name
+- The VPC Name has to follow some typo (eg, start with a lower letter)
 
 ```bash
 Error: {"errors":[{"code":"bad_field","message":"Invalid json payload provided","target":{"name":"vpcs.vpcs.name","type":"field"}}],"trace":"b7a252bb-0a4e-4758-9995-afe30193ae7b"}
