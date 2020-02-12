@@ -87,7 +87,7 @@ resource "ibm_is_instance" "nat_gwt_instance" {
     security_groups = [ibm_is_security_group.public.id]
   }
   vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
-  zone           = "us-south-1"
+  zone           = var.zone
   keys           = [ibm_is_ssh_key.ssh_Key.id]
   user_data      = file(var.natGwtStartupScript)
   resource_group = data.ibm_resource_group.Training.id
@@ -138,35 +138,36 @@ resource "ibm_is_instance" "private_instance" {
     security_groups = [ibm_is_security_group.private.id]
   }
   vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
-  zone           = "us-south-1"
+  zone           = var.zone
   keys           = [ibm_is_ssh_key.ssh_Key.id]
   resource_group = data.ibm_resource_group.Training.id # super important
 }
 
 
-resource "ibm_is_floating_ip" "private_instance_floating_ip" {
-  name   = "pf-itops-private-instance-flt-ip"
-  target = ibm_is_instance.private_instance.primary_network_interface[0].id
-  resource_group = data.ibm_resource_group.Training.id
-}
-
 output "ngwt-instance" {
   value = ibm_is_floating_ip.nat_gwt_instance_floating_ip.address
 }
+
 output "private-instance" {
   value = ibm_is_instance.private_instance.primary_network_interface[0].primary_ipv4_address
 }
-output "private-instance-public-ip" {
-  value = ibm_is_floating_ip.private_instance_floating_ip.address
-}
-
-
 
 output "public_sub-ipv4_cidr_block" {
   value = ibm_is_subnet.public.ipv4_cidr_block
 }
-
 output "private_sub-ipv4_cidr_block" {
   value = ibm_is_subnet.private.ipv4_cidr_block
 }
 
+
+resource "ibm_is_vpc_route" "private_sub" {
+  name        = "pf-itops-route-private"
+  vpc         = ibm_is_vpc.PF_ITOPS_vpc.id
+  zone        = var.zone
+  destination = "0.0.0.0/0"
+  next_hop    = ibm_is_instance.nat_gwt_instance.primary_network_interface[0].primary_ipv4_address
+}
+
+variable "team_prefix" {
+  type = string
+}
