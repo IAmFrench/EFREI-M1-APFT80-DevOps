@@ -46,22 +46,7 @@ variable "pubKeyPath" {
   type = string
 }
 
-# NAT GWT INSTANCE
-resource "ibm_is_instance" "nat_gwt_instance" {
-  name    = "pf-itops-nat-gwt"
-  image   = "r006-d2f5be47-f7fb-4e6e-b4ab-87734fd8d12b" # Ubuntu 18.04
-  profile = "cp2-2x4"
-  primary_network_interface {
-    name   = "eth0"
-    subnet = ibm_is_subnet.public.id
-    security_groups = [ibm_is_security_group.public.id]
-  }
-  vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
-  zone           = "us-south-1"
-  keys           = [ibm_is_ssh_key.ssh_Key.id]
-  user_data      = file(var.natGwtStartupScript)
-  resource_group = data.ibm_resource_group.Training.id
-}
+
 
 resource "ibm_is_security_group" "public" {
   name = "pf-itops-public-sg"
@@ -83,24 +68,23 @@ resource "ibm_is_security_group_rule" "public_sg_rule_all_out" {
   remote = "0.0.0.0/0"
 }
 
-/*
-resource "ibm_is_security_group_network_interface_attachment" "public_nat_gwt" {
-  security_group    = ibm_is_security_group.public.id
-  network_interface = ibm_is_instance.nat_gwt_instance.primary_network_interface[0].id
+
+# NAT GWT INSTANCE
+resource "ibm_is_instance" "nat_gwt_instance" {
+  name    = "pf-itops-nat-gwt"
+  image   = "r006-d2f5be47-f7fb-4e6e-b4ab-87734fd8d12b" # Ubuntu 18.04
+  profile = "cp2-2x4"
+  primary_network_interface {
+    name   = "eth0"
+    subnet = ibm_is_subnet.public.id
+    security_groups = [ibm_is_security_group.public.id]
+  }
+  vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
+  zone           = "us-south-1"
+  keys           = [ibm_is_ssh_key.ssh_Key.id]
+  user_data      = file(var.natGwtStartupScript)
+  resource_group = data.ibm_resource_group.Training.id
 }
-
-*/
-
-
-
-/*
-resource "ibm_is_network_acl" "private-acl" {
-  name = "testACL"
-  vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
-  # resource_group = data.ibm_resource_group.Training.id
-  
-}
-*/
 
 
 variable "natGwtStartupScript" {
@@ -113,6 +97,29 @@ resource "ibm_is_floating_ip" "nat_gwt_instance_floating_ip" {
   resource_group = data.ibm_resource_group.Training.id
 }
 
+
+
+
+resource "ibm_is_security_group" "private" {
+  name = "pf-itops-private-sg"
+  vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
+  resource_group = data.ibm_resource_group.Training.id
+}
+
+# Allow only traffic from the public subnet
+resource "ibm_is_security_group_rule" "private_sg_rule_all_in_from_public_subnet" {
+  group     = ibm_is_security_group.private.id
+  direction = "inbound"
+  remote = ibm_is_subnet.private.ipv4_cidr_block
+}
+
+# Allow all exiting traffic
+resource "ibm_is_security_group_rule" "private_sg_rule_all_out" {
+  group     = ibm_is_security_group.private.id
+  direction = "outbound"
+  remote = "0.0.0.0/0"
+}
+
 # Private INSTANCE
 resource "ibm_is_instance" "private_instance" {
   name    = "pf-itops-private"
@@ -121,6 +128,8 @@ resource "ibm_is_instance" "private_instance" {
   primary_network_interface {
     name   = "eth0"
     subnet = ibm_is_subnet.private.id
+    
+    security_groups = [ibm_is_security_group.private.id]
   }
   vpc            = ibm_is_vpc.PF_ITOPS_vpc.id
   zone           = "us-south-1"
