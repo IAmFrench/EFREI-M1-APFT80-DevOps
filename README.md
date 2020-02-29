@@ -1,10 +1,11 @@
 # EFREI-M1-DevOps
 
+> Please find in the `exercice` directory all exercices. `README.md` files are available for each exercices
 
 ## Prerequirements
 ### Install Terraform
 ### Install AWS CLI v2
-
+### Install IBM Cloud Terraform module
 ## Sample Terraform
 
 ```bash
@@ -25,7 +26,6 @@ should now work.
 If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
-
 ```
 
 
