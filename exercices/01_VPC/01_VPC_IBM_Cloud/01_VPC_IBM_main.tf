@@ -39,9 +39,13 @@ resource "ibm_is_subnet" "private" {
   total_ipv4_address_count = 8
   resource_group           = data.ibm_resource_group.Training.id
   network_acl              = ibm_is_vpc.PF_ITOPS_vpc.default_network_acl
-  # public_gateway = ibm_is_public_gateway.private_test_gateway.id
+  # public_gateway = ibm_is_public_gateway.private_test_gateway.id # Can't create an ibm_is_public_gateway (need resource group)
 }
+
 /*
+# Not yet supported, so I oppened an Issue: https://github.com/IBM-Cloud/terraform-provider-ibm/issues/1102
+# This has been fixed in the v1.2.2 (https://github.com/IBM-Cloud/terraform-provider-ibm/issues/1102#issuecomment-591808808)
+# But I didn't have the time to implement it (an update readme etc.)
 resource "ibm_is_public_gateway" "private_test_gateway" {
   name = "private_test_gateway"
   vpc  = ibm_is_vpc.PF_ITOPS_vpc.id
@@ -53,6 +57,9 @@ resource "ibm_is_ssh_key" "ssh_Key" {
   name           = "${var.env}-pf-itops-apares"
   public_key     = file(var.pubKeyPath)
   resource_group = data.ibm_resource_group.Training.id
+  # tags Not yet supported, so I oppened an issue: https://github.com/IBM-Cloud/terraform-provider-ibm/issues/1091
+  # An it has been fixed in the v1.2.2 (https://github.com/IBM-Cloud/terraform-provider-ibm/issues/1091#issuecomment-591809121)
+  # But I didn't have the time to implement it (an update readme etc.)
 }
 
 variable "pubKeyPath" {
