@@ -20,13 +20,13 @@ ubuntu@private-instance: exit
 terraform destroy
 ```
 
+
 ## Terraform init
 `terraform init`
 
 ### Output
 
 ```bash
-
 λ terraform init
 
 Initializing the backend...
@@ -48,7 +48,7 @@ commands will detect it and remind you to do so if necessary.
 
 ## Terraform plan
 
-> We use this command to quickly check if the *tf files are well written and don't produces errors.
+> We use this command to quickly check if `.tf` files are well written and don't produces errors.
 > Also we use this command to see changes to our environment.
 
 
@@ -59,7 +59,6 @@ terraform plan
 ### Output
 
 ```bash
-
 λ terraform plan
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
@@ -470,7 +469,6 @@ terraform apply
 ### Output
 
 ```bash
-
 λ terraform apply
 
 An execution plan has been generated and is shown below.
@@ -896,7 +894,6 @@ Outputs:
 
 ngwt-instance = ec2-34-241-211-236.eu-west-1.compute.amazonaws.com
 test-instance = ip-172-16-2-183.eu-west-1.compute.internal
-
 ```
 
 ![Terraform apply 1](https://imgur.com/zMJxXgz.png)
@@ -924,7 +921,6 @@ ssh -J ubuntu@{public-dns-name-of-NAT-instance} ubuntu@{private-dns-name-of-test
 ### Output
 
 ```bash
-
 λ ssh -J ubuntu@ec2-34-241-211-236.eu-west-1.compute.amazonaws.com ubuntu@ip-172-16-2-183.eu-west-1.compute.internal
 The authenticity of host 'ec2-34-241-211-236.eu-west-1.compute.amazonaws.com (34.241.211.236)' can't be established.
 ECDSA key fingerprint is SHA256:nTg+ZPBt7Wx3k1IqCMtEa0DZYLWHtAtjpo+30mmf1o8.
@@ -965,8 +961,6 @@ To run a command as administrator (user "root"), use "sudo <command>".
 See "man sudo_root" for details.
 
 ubuntu@ip-172-16-2-183:~$
-
-
 ```
 
 
@@ -985,7 +979,6 @@ ping 8.8.8.8
 ### Output
 
 ```bash
-
 ubuntu@ip-172-16-2-183:~$ ping 8.8.8.8 -c 5                                                                                                                                                                        PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 64 bytes from 8.8.8.8: icmp_seq=1 ttl=49 time=2.72 ms
 64 bytes from 8.8.8.8: icmp_seq=2 ttl=49 time=1.39 ms
@@ -997,7 +990,6 @@ ubuntu@ip-172-16-2-183:~$ ping 8.8.8.8 -c 5                                     
 5 packets transmitted, 5 received, 0% packet loss, time 4006ms
 rtt min/avg/max/mdev = 1.341/1.644/2.724/0.542 ms
 ubuntu@ip-172-16-2-183:~$
-
 ```
 
 ![Ping to 8.8.8.8 from Test instance](https://imgur.com/4nIL1h2.png)
@@ -1016,7 +1008,6 @@ terraform destroy
 ### Output
 
 ```bash
-
 λ terraform destroy
 aws_key_pair.rufol: Refreshing state... [id=rufol]
 aws_vpc.vpc_tp: Refreshing state... [id=vpc-031733d3530f4aab2]
@@ -1404,7 +1395,6 @@ aws_vpc.vpc_tp: Destroying... [id=vpc-031733d3530f4aab2]
 aws_vpc.vpc_tp: Destruction complete after 1s
 
 Destroy complete! Resources: 13 destroyed.
-
 ```
 
 ![Terraform destroy 1](https://imgur.com/LcyrMEj.png)
